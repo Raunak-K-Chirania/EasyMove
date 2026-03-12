@@ -1,0 +1,70 @@
+<div class="min-h-screen bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+            Sign in to your account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-400">
+            Or
+            <a routerLink="/register" class="font-medium text-blue-500 hover:text-blue-400">
+                create a new account
+            </a>
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-700">
+            <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300"> Email address </label>
+                    <div class="mt-1">
+                        <input id="email" formControlName="email" type="email" autocomplete="email" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white transition-colors" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300"> Password </label>
+                    <div class="mt-1">
+                        <input id="password" formControlName="password" type="password" autocomplete="current-password"
+                            required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white transition-colors" />
+                    </div>
+                </div>
+
+                <div *ngIf="error" class="text-red-500 text-sm mt-2">
+                    {{ error }}
+                </div>
+
+                <div>
+                    <button type="submit" [disabled]="loginForm.invalid || loading"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200">
+                        <span *ngIf="!loading">Sign in</span>
+                        <span *ngIf="loading">Signing in...</span>
+                    </button>
+                </div>
+
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-600"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-gray-800 text-gray-400"> Or continue with </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button type="button" (click)="loginWithGoogle()" [disabled]="loading"
+                            class="w-full inline-flex justify-center py-2 px-4 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-sm font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+                            <svg class="h-5 w-5 mr-2" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+                            </svg>
+                            Google
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

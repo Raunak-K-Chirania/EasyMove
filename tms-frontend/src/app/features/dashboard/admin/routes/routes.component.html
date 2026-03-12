@@ -1,0 +1,195 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Route Management</h2>
+            <p class="text-sm text-gray-500">Configure delivery routes, distances, and base costs</p>
+        </div>
+        <button (click)="openNewForm()"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-sm flex items-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Route
+        </button>
+    </div>
+
+    <!-- Routes List Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-100">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Destination</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distance
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
+                    <th scope="col"
+                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let route of routes" class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ route.source }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ route.destination }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ route.distance }} km</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₹{{ route.cost }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button *ngIf="route.id" (click)="editRoute(route)"
+                            class="text-indigo-600 hover:text-indigo-900 transition-colors mr-4">Edit</button>
+                        <button *ngIf="route.id" (click)="deleteRoute(route.id)"
+                            class="text-red-600 hover:text-red-900 transition-colors">Delete</button>
+                    </td>
+                </tr>
+                <tr *ngIf="routes.length === 0">
+                    <td colspan="5" class="px-6 py-12 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
+                            </path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No routes established</h3>
+                        <p class="mt-1 text-sm text-gray-500">Get started by creating a new transport route.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sliding Modal / Form Overlay -->
+    <div *ngIf="showForm" class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog"
+        aria-modal="true">
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Background overlay -->
+            <div class="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm"
+                aria-hidden="true" (click)="closeForm()"></div>
+
+            <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+                <div class="w-screen max-w-md transform transition-transform shadow-2xl">
+                    <div class="h-full divide-y divide-gray-200 flex flex-col bg-white">
+                        <div class="py-6 px-4 sm:px-6 bg-green-700 text-white">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-medium" id="slide-over-title">
+                                    {{ editingRouteId ? 'Edit Route' : 'Create New Route' }}
+                                </h2>
+                                <button type="button"
+                                    class="rounded-md text-green-200 hover:text-white focus:outline-none"
+                                    (click)="closeForm()">
+                                    <span class="sr-only">Close panel</span>
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="mt-1 flex items-center gap-2">
+                                <p class="text-sm text-green-100">
+                                    {{ editingRouteId ? 'Update the details for this destination path.' : 'Add a new
+                                    destination path for the fleet.' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <form [formGroup]="routeForm" (ngSubmit)="onSubmit()"
+                            class="flex-1 flex flex-col justify-between overflow-y-auto">
+                            <div class="px-4 divide-y divide-gray-200 sm:px-6">
+                                <div class="space-y-6 pt-6 pb-5">
+                                    <div>
+                                        <label for="source" class="block text-sm font-medium text-gray-900">Source
+                                            Location</label>
+                                        <div class="mt-1">
+                                            <input type="text" id="source" formControlName="source"
+                                                class="block w-full shadow-sm sm:text-sm focus:ring-green-500 focus:border-green-500 border-gray-300 rounded-md py-2 px-3 border"
+                                                placeholder="e.g. New York, NY">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="destination"
+                                            class="block text-sm font-medium text-gray-900">Destination Location</label>
+                                        <div class="mt-1">
+                                            <input type="text" id="destination" formControlName="destination"
+                                                class="block w-full shadow-sm sm:text-sm focus:ring-green-500 focus:border-green-500 border-gray-300 rounded-md py-2 px-3 border"
+                                                placeholder="e.g. Los Angeles, CA">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <label for="distance"
+                                                class="block text-sm font-medium text-gray-900">Distance
+                                                (in km)</label>
+                                            <button type="button" (click)="calculateDistance()"
+                                                [disabled]="isCalculatingDistance"
+                                                class="text-xs text-green-600 hover:text-green-800 font-medium flex items-center gap-1 transition-colors disabled:opacity-50">
+                                                <svg *ngIf="!isCalculatingDistance" class="w-4 h-4" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                                <svg *ngIf="isCalculatingDistance" class="animate-spin w-4 h-4"
+                                                    fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                    </path>
+                                                </svg>
+                                                {{ isCalculatingDistance ? 'Calculating...' : 'Auto-Calculate' }}
+                                            </button>
+                                        </div>
+                                        <div class="relative rounded-md shadow-sm">
+                                            <input type="number" id="distance" formControlName="distance"
+                                                class="block w-full pr-12 sm:text-sm focus:ring-green-500 focus:border-green-500 border-gray-300 rounded-md py-2 px-3 border"
+                                                [ngClass]="{'border-red-300 focus:border-red-500 focus:ring-red-500': distanceError}">
+                                            <div
+                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">km</span>
+                                            </div>
+                                        </div>
+                                        <p *ngIf="distanceError" class="mt-1 text-xs text-red-600">{{ distanceError }}
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label for="cost" class="block text-sm font-medium text-gray-900">Base Cost
+                                            Pricing</label>
+                                        <div class="mt-1 relative rounded-md shadow-sm">
+                                            <div
+                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">₹</span>
+                                            </div>
+                                            <input type="number" id="cost" formControlName="cost"
+                                                class="block w-full pl-7 sm:text-sm focus:ring-green-500 focus:border-green-500 border-gray-300 rounded-md py-2 px-3 border"
+                                                placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action buttons -->
+                            <div class="flex-shrink-0 px-4 py-4 border-t border-gray-200 flex justify-end bg-gray-50">
+                                <button type="button"
+                                    class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                                    (click)="closeForm()">
+                                    Cancel
+                                </button>
+                                <button type="submit" [disabled]="routeForm.invalid"
+                                    class="ml-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                    {{ editingRouteId ? 'Save Changes' : 'Save Route' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

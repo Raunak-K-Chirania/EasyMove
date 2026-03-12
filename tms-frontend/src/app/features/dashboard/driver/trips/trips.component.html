@@ -1,0 +1,92 @@
+<div class="space-y-6">
+
+    <div *ngIf="trips.length === 0" class="bg-white p-12 text-center rounded-xl shadow-sm border border-gray-100">
+        <div class="mx-auto w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                </path>
+            </svg>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900">No Active Trips</h3>
+        <p class="text-gray-500 mt-1">You currently have no shipments assigned to you.</p>
+    </div>
+
+    <!-- Trips List -->
+    <div *ngFor="let trip of trips"
+        class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+
+        <!-- Header: Route info -->
+        <div
+            class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Shipment Route</span>
+                    <!-- Status Badge -->
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" [ngClass]="{
+                  'bg-yellow-100 text-yellow-800 border items-border': trip.status === 'SCHEDULED',
+                  'bg-blue-100 text-blue-800 border border-blue-200': trip.status === 'IN_TRANSIT',
+                  'bg-emerald-100 text-emerald-800 border border-emerald-200': trip.status === 'DELIVERED'
+                }">
+                        {{ trip.status.replace('_', ' ') }}
+                    </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    {{ trip.booking.route.source }}
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                    </svg>
+                    {{ trip.booking.route.destination }}
+                </h3>
+            </div>
+
+            <div class="text-left sm:text-right">
+                <p class="text-sm font-medium text-gray-900">Vehicle: {{ trip.vehicle.registrationNumber }}</p>
+                <p class="text-xs text-gray-500">Type: {{ trip.vehicle.type }} / Capacity: {{ trip.vehicle.capacity }}kg
+                </p>
+            </div>
+        </div>
+
+        <!-- Body: Details & Actions -->
+        <div class="p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+
+            <div class="flex-grow grid grid-cols-2 gap-6 w-full md:w-auto">
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase">Customer Details</h4>
+                    <p class="mt-1 font-medium text-gray-900">{{ trip.booking.customer?.email }}</p>
+                    <p class="text-sm text-gray-500">{{ trip.booking.customer?.name || 'N/A' }} | {{
+                        trip.booking.customer?.phone || 'N/A' }}</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase">Booking Info</h4>
+                    <div class="mt-1 text-sm font-mono text-gray-600">ID: #{{ trip.booking.id }}</div>
+                    <p class="text-sm text-gray-500 mb-1">Date/Time: {{ trip.booking.bookingDate | date:'medium' }}</p>
+                    <p class="text-sm text-gray-500">Distance: {{ trip.booking.route.distance }}km</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex-shrink-0 flex gap-3 w-full md:w-auto">
+                <button *ngIf="trip.status === 'SCHEDULED'" (click)="updateStatus(trip.id, 'IN_TRANSIT')"
+                    class="w-full md:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Start Journey
+                </button>
+
+                <button *ngIf="trip.status === 'IN_TRANSIT'" (click)="updateStatus(trip.id, 'DELIVERED')"
+                    class="w-full md:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Mark Delivered
+                </button>
+
+                <button *ngIf="trip.status === 'DELIVERED'" disabled
+                    class="w-full md:w-auto px-5 py-2.5 bg-gray-100 text-gray-500 text-sm font-semibold rounded-lg border border-gray-200 cursor-not-allowed">
+                    Delivery Completed
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

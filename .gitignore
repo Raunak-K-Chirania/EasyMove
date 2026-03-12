@@ -1,0 +1,24 @@
+# Angular
+tms-frontend/node_modules/
+tms-frontend/dist/
+tms-frontend/.angular/
+
+# Spring Boot / Maven
+tms-backend/target/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# Environment
+.env
+
+# Firebase secret key (IMPORTANT)
+src/main/resources/firebase-service-account.json
+

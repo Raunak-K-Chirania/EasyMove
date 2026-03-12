@@ -1,0 +1,100 @@
+<div class="min-h-screen bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
+            Create a new account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-400">
+            Or
+            <a routerLink="/login" class="font-medium text-blue-500 hover:text-blue-400">
+                sign in to your existing account
+            </a>
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-700">
+            <form class="space-y-6" [formGroup]="registerForm" (ngSubmit)="sendOtp()" *ngIf="!success && !isOtpStep">
+                <!-- ... existing fields ... -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-300"> Full Name </label>
+                    <div class="mt-1">
+                        <input id="name" formControlName="name" type="text" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white transition-colors" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-300"> Phone Number </label>
+                    <div class="mt-1">
+                        <input id="phone" formControlName="phone" type="text" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white transition-colors" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300"> Email address </label>
+                    <div class="mt-1">
+                        <input id="email" formControlName="email" type="email" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white transition-colors" />
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300"> Password </label>
+                    <div class="mt-1">
+                        <input id="password" formControlName="password" type="password" required
+                            class="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white transition-colors" />
+                    </div>
+                </div>
+
+                <div *ngIf="error" class="text-red-500 text-sm mt-2">
+                    {{ error }}
+                </div>
+
+                <div>
+                    <button type="submit" [disabled]="registerForm.invalid || loading"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200">
+                        <span *ngIf="!loading">Send OTP</span>
+                        <span *ngIf="loading">Sending OTP...</span>
+                    </button>
+                </div>
+            </form>
+
+            <div *ngIf="isOtpStep && !success" class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium text-white text-center">Verify Email</h3>
+                    <p class="text-sm text-gray-400 text-center">Enter the OTP sent to {{registerForm.value.email}}</p>
+                </div>
+                <div>
+                    <input [(ngModel)]="otp" type="text" maxlength="6"
+                        class="appearance-none block w-full px-3 py-4 border border-gray-600 rounded-md shadow-sm text-center text-2xl font-bold tracking-widest focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-700 text-white" />
+                </div>
+                <div *ngIf="otpError" class="text-red-500 text-sm mt-2 text-center">
+                    {{ otpError }}
+                </div>
+                <div>
+                    <button (click)="verifyOtp()" [disabled]="loading || otp.length < 6"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors duration-200">
+                        <span *ngIf="!loading">Verify & Register</span>
+                        <span *ngIf="loading">Verifying...</span>
+                    </button>
+                    <button (click)="isOtpStep = false"
+                        class="mt-2 w-full text-center text-sm text-gray-400 hover:text-white">
+                        Change Email
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="success" class="rounded-md bg-green-800 p-4">
+                <div class="flex">
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-100">Registration successful!</h3>
+                        <div class="mt-2 text-sm text-green-200">
+                            <p>Redirecting to login...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
