@@ -22,3 +22,5 @@ Thumbs.db
 # Firebase secret key (IMPORTANT)
 src/main/resources/firebase-service-account.json
 
+
+tms-frontend/src/environments/environment.ts
