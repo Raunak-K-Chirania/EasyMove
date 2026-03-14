@@ -1,23 +1,26 @@
 {
-    "/api/photon": {
-        "target": "https://photon.komoot.io",
-        "secure": false,
-        "changeOrigin": true,
-        "pathRewrite": {
-            "^/api/photon": "/api"
-        }
+  "/api/photon": {
+    "target": "https://photon.komoot.io/api/",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/photon": ""
     },
-    "/api/osrm": {
-        "target": "https://router.project-osrm.org",
-        "secure": false,
-        "changeOrigin": true,
-        "pathRewrite": {
-            "^/api/osrm": ""
-        }
+    "logLevel": "debug"
+  },
+  "/api/osrm": {
+    "target": "https://router.project-osrm.org",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/osrm": ""
     },
-    "/api": {
-        "target": "http://localhost:8080",
-        "secure": false,
-        "changeOrigin": true
-    }
+    "logLevel": "debug"
+  },
+  "/api": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
 }

@@ -1,0 +1,97 @@
+<div class="trips-container">
+  <div class="header">
+    <h2>My Assigned Trips</h2>
+    <p>Manage your active and completed transport assignments.</p>
+  </div>
+
+  <div *ngIf="loading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Loading trips...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && !error && trips.length === 0" class="empty-state">
+    <div class="empty-icon">🚛</div>
+    <h3>No Trips Assigned</h3>
+    <p>You currently do not have any active trip assignments.</p>
+  </div>
+
+  <div *ngIf="!loading && !error && trips.length > 0" class="trips-grid">
+    <div class="trip-card" *ngFor="let trip of trips" [ngClass]="{'active-trip': trip.status === 'IN_PROGRESS'}">
+      <div class="card-header">
+        <span class="trip-id">Trip #{{ trip.id }}</span>
+        <span class="badge" [ngClass]="getStatusClass(trip.status)">{{ trip.status }}</span>
+      </div>
+      
+      <div class="card-body">
+        <div class="customer-info">
+          <strong>Customer:</strong> {{ trip.customerName }} 
+          <a [href]="'tel:' + trip.customerPhone" class="phone-link">
+            📞 {{ trip.customerPhone }}
+          </a>
+        </div>
+
+        <div class="route-info mt-3">
+          <div class="location">
+            <span class="dot pickup"></span>
+            <div>
+              <small>Pickup</small>
+              <div class="loc-text">{{ trip.pickupLocation }}</div>
+            </div>
+          </div>
+          <div class="route-line"></div>
+          <div class="location">
+            <span class="dot drop"></span>
+            <div>
+              <small>Drop-off</small>
+              <div class="loc-text">{{ trip.dropLocation }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="details mt-3 pt-3 border-top">
+          <div *ngIf="trip.preferredTime">
+            <small class="text-muted">Preferred Time:</small>
+            <div>{{ trip.preferredTime | date:'medium' }}</div>
+          </div>
+          <div *ngIf="trip.specialInstructions" class="mt-2">
+            <small class="text-muted">Instructions:</small>
+            <div class="instructions-box">"{{ trip.specialInstructions }}"</div>
+          </div>
+          <div class="mt-2 text-muted small">
+            Vehicle assigned: {{ trip.vehicleRegistrationNumber }}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer" *ngIf="trip.status === 'ASSIGNED' || trip.status === 'IN_PROGRESS' || trip.status === 'DELAYED'">
+        
+        <ng-container *ngIf="trip.status === 'ASSIGNED'">
+          <button class="btn btn-primary w-100" 
+                  (click)="updateStatus(trip.id, 'IN_PROGRESS')" 
+                  [disabled]="updatingStatusId === trip.id">
+            🚀 Start Trip
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="trip.status === 'IN_PROGRESS' || trip.status === 'DELAYED'">
+          <div class="action-buttons">
+            <button class="btn btn-warning flex-fill" 
+                    *ngIf="trip.status !== 'DELAYED'"
+                    (click)="updateStatus(trip.id, 'DELAYED')" 
+                    [disabled]="updatingStatusId === trip.id">
+              ⚠️ Delay
+            </button>
+            <button class="btn btn-success flex-fill" 
+                    (click)="updateStatus(trip.id, 'COMPLETED')" 
+                    [disabled]="updatingStatusId === trip.id">
+              ✅ Complete
+            </button>
+          </div>
+        </ng-container>
+
+      </div>
+    </div>
+  </div>
+</div>

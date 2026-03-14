@@ -1,0 +1,97 @@
+<div class="requests-container">
+  <div class="header">
+    <div class="title-area">
+      <h2>My Transport Requests</h2>
+      <p>View and manage your transport requests.</p>
+    </div>
+    <div class="action-area">
+      <a routerLink="../request-transport" class="btn btn-primary">New Request</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your requests...</p>
+  </div>
+
+  <div *ngIf="error" class="error-state alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && requests.length === 0" class="empty-state">
+    <div class="empty-icon">🚙</div>
+    <h3>No Requests Found</h3>
+    <p>You haven't made any transport requests yet.</p>
+    <a routerLink="../request-transport" class="btn btn-primary mt-3">Create Your First Request</a>
+  </div>
+
+  <div *ngIf="!loading && !error && requests.length > 0" class="requests-grid">
+    <div class="request-card" *ngFor="let request of requests">
+      <div class="card-header">
+        <span class="request-id">Request #{{ request.id }}</span>
+        <span class="badge" [ngClass]="getStatusClass(request.status)">{{ request.status | titlecase }}</span>
+      </div>
+      
+      <div class="card-body">
+        <div class="route-info">
+          <div class="location">
+            <span class="dot pickup"></span>
+            <div>
+              <small>Pickup</small>
+              <div class="loc-text">{{ request.pickupLocation }}</div>
+            </div>
+          </div>
+          <div class="route-line"></div>
+          <div class="location">
+            <span class="dot drop"></span>
+            <div>
+              <small>Drop-off</small>
+              <div class="loc-text">{{ request.dropLocation }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-grid mt-3">
+          <div class="detail-item" *ngIf="request.preferredTime">
+            <i class="feather icon-clock"></i>
+            <div>
+              <small>Preferred Time</small>
+              <div>{{ request.preferredTime | date:'medium' }}</div>
+            </div>
+          </div>
+          
+          <div class="detail-item" *ngIf="request.driverName">
+            <i class="feather icon-user"></i>
+            <div>
+              <small>Assigned Driver</small>
+              <div>{{ request.driverName }} ({{ request.driverPhone }})</div>
+            </div>
+          </div>
+          
+          <div class="detail-item" *ngIf="request.vehicleRegistrationNumber">
+            <i class="feather icon-truck"></i>
+            <div>
+              <small>Vehicle</small>
+              <div>{{ request.vehicleRegistrationNumber }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rejection-reason" *ngIf="request.status === 'REJECTED' && request.rejectionReason">
+          <small>Reason for rejection:</small>
+          <p>{{ request.rejectionReason }}</p>
+        </div>
+      </div>
+
+      <div class="card-footer" *ngIf="canCancel(request)">
+        <button 
+          class="btn btn-outline-danger btn-sm" 
+          (click)="onCancel(request.id)"
+          [disabled]="cancelLoadingId === request.id">
+          <span *ngIf="cancelLoadingId !== request.id">Cancel Request</span>
+          <span *ngIf="cancelLoadingId === request.id">Cancelling...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

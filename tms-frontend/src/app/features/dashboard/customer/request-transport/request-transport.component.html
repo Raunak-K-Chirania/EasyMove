@@ -1,0 +1,317 @@
+<div class="rt-page">
+
+  <!-- Header -->
+  <div class="rt-header">
+    <div class="rt-header-icon">🚚</div>
+    <h1>Request Transport</h1>
+    <p>Book a vehicle for your move in just a few steps</p>
+  </div>
+
+  <!-- Alerts -->
+  <div class="rt-alert rt-alert--success" *ngIf="submitSuccess">
+    <span class="rt-alert-icon">✅</span>
+    <div>
+      <strong>Request submitted successfully!</strong>
+      <p>Redirecting you to My Requests…</p>
+    </div>
+  </div>
+  <div class="rt-alert rt-alert--error" *ngIf="submitError">
+    <span class="rt-alert-icon">❌</span>
+    <span>{{ submitError }}</span>
+  </div>
+
+  <!-- Step Progress -->
+  <div class="rt-steps">
+    <div class="rt-step" [class.rt-step--done]="currentStep > 1" [class.rt-step--active]="currentStep === 1" (click)="goToStep(1)">
+      <div class="rt-step-circle">
+        <span *ngIf="currentStep <= 1">1</span>
+        <span *ngIf="currentStep > 1">✓</span>
+      </div>
+      <span class="rt-step-label">Select Route</span>
+    </div>
+    <div class="rt-step-line" [class.rt-step-line--done]="currentStep > 1"></div>
+    <div class="rt-step" [class.rt-step--done]="currentStep > 2" [class.rt-step--active]="currentStep === 2" (click)="goToStep(2)">
+      <div class="rt-step-circle">
+        <span *ngIf="currentStep <= 2">2</span>
+        <span *ngIf="currentStep > 2">✓</span>
+      </div>
+      <span class="rt-step-label">Address Details</span>
+    </div>
+    <div class="rt-step-line" [class.rt-step-line--done]="currentStep > 2"></div>
+    <div class="rt-step" [class.rt-step--active]="currentStep === 3">
+      <div class="rt-step-circle">3</div>
+      <span class="rt-step-label">Schedule</span>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="rt-card">
+    <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+
+      <!-- ── STEP 1: Select Route ── -->
+      <div class="rt-step-panel" *ngIf="currentStep === 1">
+        <div class="rt-step-header">
+          <h2>Choose a Route</h2>
+          <p>Select an available route — distance and price will be filled automatically.</p>
+        </div>
+
+        <div class="rt-field">
+          <label class="rt-label" for="routeId">Available Routes *</label>
+          <div class="rt-select-wrapper">
+            <select id="routeId" formControlName="routeId" class="rt-select"
+                    [class.rt-select--loading]="isLoadingRoutes">
+              <option value="">
+                {{ isLoadingRoutes ? 'Loading routes…' : '— Select a route —' }}
+              </option>
+              <option *ngFor="let r of routes" [value]="r.id">
+                {{ r.source }} → {{ r.destination }} &nbsp;|&nbsp; {{ r.distance }} km &nbsp;|&nbsp; ₹{{ r.cost | number:'1.0-0' }}
+              </option>
+            </select>
+            <span class="rt-select-arrow">▾</span>
+          </div>
+          <div class="rt-hint" *ngIf="!isLoadingRoutes && routes.length === 0">
+            No routes configured yet. Please contact your administrator.
+          </div>
+        </div>
+
+        <!-- Route Preview Card -->
+        <div class="rt-route-card" *ngIf="selectedRoute">
+          <div class="rt-route-row">
+            <div class="rt-route-point">
+              <span class="rt-dot rt-dot--green"></span>
+              <div>
+                <span class="rt-point-label">From</span>
+                <span class="rt-point-value">{{ selectedRoute.source }}</span>
+              </div>
+            </div>
+            <div class="rt-route-arrow">→</div>
+            <div class="rt-route-point">
+              <span class="rt-dot rt-dot--red"></span>
+              <div>
+                <span class="rt-point-label">To</span>
+                <span class="rt-point-value">{{ selectedRoute.destination }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="rt-route-meta">
+            <div class="rt-meta-badge">
+              <span class="rt-meta-icon">📏</span>
+              <span>{{ selectedRoute.distance }} km</span>
+            </div>
+            <div class="rt-meta-badge rt-meta-badge--price">
+              <span class="rt-meta-icon">💰</span>
+              <span>₹{{ selectedRoute.cost | number:'1.0-0' }} estimated</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rt-actions">
+          <button type="button" class="rt-btn rt-btn--primary"
+                  (click)="nextStep()" [disabled]="!stepOneValid">
+            Next — Address Details <span class="rt-btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 2: Address Details ── -->
+      <div class="rt-step-panel" *ngIf="currentStep === 2">
+
+        <!-- Pickup Address -->
+        <div class="rt-step-header">
+          <h2>📍 Pickup Address</h2>
+          <p>Where should we pick up from?</p>
+        </div>
+
+        <div formGroupName="pickupAddress" class="rt-address-form">
+          <div class="rt-field-row">
+            <div class="rt-field">
+              <label class="rt-label" for="p-houseNo">House / Flat No. *</label>
+              <input id="p-houseNo" type="text" class="rt-input"
+                [class.rt-input--error]="requestForm.get('pickupAddress.houseNo')?.invalid && requestForm.get('pickupAddress.houseNo')?.touched"
+                formControlName="houseNo" placeholder="e.g. 12A">
+              <span class="rt-error"
+                *ngIf="requestForm.get('pickupAddress.houseNo')?.errors?.['required'] && requestForm.get('pickupAddress.houseNo')?.touched">
+                Required
+              </span>
+            </div>
+            <div class="rt-field">
+              <label class="rt-label" for="p-floor">Floor</label>
+              <input id="p-floor" type="text" class="rt-input"
+                formControlName="floor" placeholder="e.g. 3rd">
+            </div>
+          </div>
+
+          <div class="rt-field">
+            <label class="rt-label" for="p-area">Area / Locality *</label>
+            <input id="p-area" type="text" class="rt-input"
+              [class.rt-input--error]="requestForm.get('pickupAddress.area')?.invalid && requestForm.get('pickupAddress.area')?.touched"
+              formControlName="area" placeholder="e.g. MG Road, Koramangala">
+            <span class="rt-error"
+              *ngIf="requestForm.get('pickupAddress.area')?.errors?.['required'] && requestForm.get('pickupAddress.area')?.touched">
+              Required
+            </span>
+          </div>
+
+          <div class="rt-field-row">
+            <div class="rt-field">
+              <label class="rt-label" for="p-ward">Ward / Sector</label>
+              <input id="p-ward" type="text" class="rt-input"
+                formControlName="ward" placeholder="e.g. Ward 15">
+            </div>
+            <div class="rt-field">
+              <label class="rt-label" for="p-pincode">Pincode *</label>
+              <input id="p-pincode" type="text" class="rt-input"
+                [class.rt-input--error]="requestForm.get('pickupAddress.pincode')?.invalid && requestForm.get('pickupAddress.pincode')?.touched"
+                formControlName="pincode" placeholder="e.g. 560001" maxlength="6">
+              <span class="rt-error"
+                *ngIf="requestForm.get('pickupAddress.pincode')?.errors?.['required'] && requestForm.get('pickupAddress.pincode')?.touched">
+                Required
+              </span>
+              <span class="rt-error"
+                *ngIf="requestForm.get('pickupAddress.pincode')?.errors?.['pattern'] && requestForm.get('pickupAddress.pincode')?.touched">
+                Must be 6 digits
+              </span>
+            </div>
+          </div>
+
+          <div class="rt-field">
+            <label class="rt-label" for="p-landmark">Nearby Landmark</label>
+            <input id="p-landmark" type="text" class="rt-input"
+              formControlName="landmark" placeholder="e.g. Near City Mall, Opposite SBI Bank">
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="rt-divider"><span>Drop Address</span></div>
+
+        <!-- Drop Address -->
+        <div class="rt-step-header">
+          <h2>🏁 Drop Address</h2>
+          <p>Where should we deliver to?</p>
+        </div>
+
+        <div formGroupName="dropAddress" class="rt-address-form">
+          <div class="rt-field-row">
+            <div class="rt-field">
+              <label class="rt-label" for="d-houseNo">House / Flat No. *</label>
+              <input id="d-houseNo" type="text" class="rt-input"
+                [class.rt-input--error]="requestForm.get('dropAddress.houseNo')?.invalid && requestForm.get('dropAddress.houseNo')?.touched"
+                formControlName="houseNo" placeholder="e.g. 88B">
+              <span class="rt-error"
+                *ngIf="requestForm.get('dropAddress.houseNo')?.errors?.['required'] && requestForm.get('dropAddress.houseNo')?.touched">
+                Required
+              </span>
+            </div>
+            <div class="rt-field">
+              <label class="rt-label" for="d-floor">Floor</label>
+              <input id="d-floor" type="text" class="rt-input"
+                formControlName="floor" placeholder="e.g. Ground">
+            </div>
+          </div>
+
+          <div class="rt-field">
+            <label class="rt-label" for="d-area">Area / Locality *</label>
+            <input id="d-area" type="text" class="rt-input"
+              [class.rt-input--error]="requestForm.get('dropAddress.area')?.invalid && requestForm.get('dropAddress.area')?.touched"
+              formControlName="area" placeholder="e.g. Indiranagar, Whitefield">
+            <span class="rt-error"
+              *ngIf="requestForm.get('dropAddress.area')?.errors?.['required'] && requestForm.get('dropAddress.area')?.touched">
+              Required
+            </span>
+          </div>
+
+          <div class="rt-field-row">
+            <div class="rt-field">
+              <label class="rt-label" for="d-ward">Ward / Sector</label>
+              <input id="d-ward" type="text" class="rt-input"
+                formControlName="ward" placeholder="e.g. Sector 4">
+            </div>
+            <div class="rt-field">
+              <label class="rt-label" for="d-pincode">Pincode *</label>
+              <input id="d-pincode" type="text" class="rt-input"
+                [class.rt-input--error]="requestForm.get('dropAddress.pincode')?.invalid && requestForm.get('dropAddress.pincode')?.touched"
+                formControlName="pincode" placeholder="e.g. 560038" maxlength="6">
+              <span class="rt-error"
+                *ngIf="requestForm.get('dropAddress.pincode')?.errors?.['required'] && requestForm.get('dropAddress.pincode')?.touched">
+                Required
+              </span>
+              <span class="rt-error"
+                *ngIf="requestForm.get('dropAddress.pincode')?.errors?.['pattern'] && requestForm.get('dropAddress.pincode')?.touched">
+                Must be 6 digits
+              </span>
+            </div>
+          </div>
+
+          <div class="rt-field">
+            <label class="rt-label" for="d-landmark">Nearby Landmark</label>
+            <input id="d-landmark" type="text" class="rt-input"
+              formControlName="landmark" placeholder="e.g. Opposite Metro Station">
+          </div>
+        </div>
+
+        <div class="rt-actions rt-actions--split">
+          <button type="button" class="rt-btn rt-btn--ghost" (click)="prevStep()">← Back</button>
+          <button type="button" class="rt-btn rt-btn--primary" (click)="nextStep()">
+            Next — Schedule <span class="rt-btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Schedule & Notes ── -->
+      <div class="rt-step-panel" *ngIf="currentStep === 3">
+        <div class="rt-step-header">
+          <h2>🗓 Schedule & Notes</h2>
+          <p>Set a preferred pickup time and any special instructions.</p>
+        </div>
+
+        <div class="rt-field">
+          <label class="rt-label" for="preferredTime">
+            Preferred Pickup Time <span class="rt-optional">(Optional)</span>
+          </label>
+          <input id="preferredTime" type="datetime-local" class="rt-input rt-input--datetime"
+            formControlName="preferredTime">
+        </div>
+
+        <div class="rt-field">
+          <label class="rt-label" for="specialInstructions">
+            Special Instructions <span class="rt-optional">(Optional)</span>
+          </label>
+          <textarea id="specialInstructions" class="rt-input rt-textarea"
+            formControlName="specialInstructions" rows="4"
+            placeholder="e.g. Fragile items, heavy furniture, elevator available, parking info…">
+          </textarea>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="rt-summary" *ngIf="selectedRoute">
+          <div class="rt-summary-title">📋 Booking Summary</div>
+          <div class="rt-summary-grid">
+            <div class="rt-summary-item">
+              <span class="rt-summary-label">Route</span>
+              <span class="rt-summary-value">{{ selectedRoute.source }} → {{ selectedRoute.destination }}</span>
+            </div>
+            <div class="rt-summary-item">
+              <span class="rt-summary-label">Distance</span>
+              <span class="rt-summary-value">{{ selectedRoute.distance }} km</span>
+            </div>
+            <div class="rt-summary-item">
+              <span class="rt-summary-label">Est. Price</span>
+              <span class="rt-summary-value rt-summary-value--price">₹{{ selectedRoute.cost | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rt-actions rt-actions--split">
+          <button type="button" class="rt-btn rt-btn--ghost" (click)="prevStep()">← Back</button>
+          <button type="submit" class="rt-btn rt-btn--submit" [disabled]="isSubmitting">
+            <ng-container *ngIf="!isSubmitting">🚀 Submit Request</ng-container>
+            <ng-container *ngIf="isSubmitting">
+              <span class="rt-spinner"></span> Submitting…
+            </ng-container>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

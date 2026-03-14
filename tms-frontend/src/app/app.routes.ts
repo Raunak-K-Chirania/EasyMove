@@ -42,6 +42,12 @@ export const routes: Routes = [
         data: { roles: ['ADMIN'] }
     },
     {
+        path: 'admin/requests',
+        loadComponent: () => import('./features/dashboard/admin/manage-requests/manage-requests.component').then(m => m.ManageRequestsComponent),
+        canActivate: [authGuard],
+        data: { roles: ['ADMIN', 'MANAGER'] }
+    },
+    {
         path: 'customer',
         component: CustomerComponent,
         canActivate: [authGuard],
@@ -54,12 +60,24 @@ export const routes: Routes = [
         data: { roles: ['CUSTOMER'] }
     },
     {
+        path: 'customer/request-transport',
+        loadComponent: () => import('./features/dashboard/customer/request-transport/request-transport.component').then(m => m.RequestTransportComponent),
+        canActivate: [authGuard],
+        data: { roles: ['CUSTOMER'] }
+    },
+    {
+        path: 'customer/my-requests',
+        loadComponent: () => import('./features/dashboard/customer/my-requests/my-requests.component').then(m => m.MyRequestsComponent),
+        canActivate: [authGuard],
+        data: { roles: ['CUSTOMER'] }
+    },
+    {
         path: 'driver',
         loadComponent: () => import('./features/dashboard/driver/driver.component').then(m => m.DriverComponent),
         canActivate: [authGuard],
         data: { roles: ['DRIVER'] },
         children: [
-            { path: 'trips', loadComponent: () => import('./features/dashboard/driver/trips/trips.component').then(m => m.DriverTripsComponent) },
+            { path: 'trips', loadComponent: () => import('./features/dashboard/driver/assigned-trips/assigned-trips.component').then(m => m.AssignedTripsComponent) },
             { path: '', redirectTo: 'trips', pathMatch: 'full' }
         ]
     },

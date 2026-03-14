@@ -1,0 +1,133 @@
+<div class="manage-requests-container">
+  <div class="header">
+    <h2>Manage Transport Requests</h2>
+    <p>Review and assign drivers to customer transport requests.</p>
+  </div>
+
+  <div *ngIf="loading" class="text-center p-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Loading requests...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div class="table-responsive" *ngIf="!loading && !error">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Customer Info</th>
+          <th>Locations</th>
+          <th>Time & Details</th>
+          <th>Status</th>
+          <th>Assignment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let req of requests">
+          <td>#{{ req.id }}</td>
+          <td>
+            <div class="fw-bold">{{ req.customerName }}</div>
+            <div class="text-muted small">{{ req.customerPhone }}</div>
+          </td>
+          <td>
+            <div class="location-stack">
+              <span class="loc-pill pickup">Pickup:</span> {{ req.pickupLocation }}
+            </div>
+            <div class="location-stack mt-1">
+              <span class="loc-pill drop">Drop:</span> {{ req.dropLocation }}
+            </div>
+          </td>
+          <td>
+            <div *ngIf="req.preferredTime">🕒 {{ req.preferredTime | date:'short' }}</div>
+            <div class="text-muted small mt-1" *ngIf="req.specialInstructions">
+              <em>"{{ req.specialInstructions }}"</em>
+            </div>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getStatusClass(req.status)">{{ req.status }}</span>
+          </td>
+          <td>
+            <div *ngIf="req.driverName" class="assignment-info">
+              <div>🧑‍✈️ {{ req.driverName }}</div>
+              <div>🚛 {{ req.vehicleRegistrationNumber }}</div>
+            </div>
+            <span *ngIf="!req.driverName" class="text-muted">-</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <!-- Pending Actions -->
+              <ng-container *ngIf="req.status === 'PENDING'">
+                <button class="btn btn-sm btn-success" (click)="approveRequest(req.id)">Approve</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="openRejectModal(req)">Reject</button>
+              </ng-container>
+
+              <!-- Approved Actions -->
+              <ng-container *ngIf="req.status === 'APPROVED'">
+                <button class="btn btn-sm btn-primary" (click)="openAssignModal(req)">Assign Driver</button>
+              </ng-container>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal-backdrop" *ngIf="showRejectModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h5 class="modal-title">Reject Request #{{ selectedRequest?.id }}</h5>
+      <button type="button" class="btn-close" (click)="closeModals()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Reason for Rejection *</label>
+        <textarea class="form-control" [(ngModel)]="rejectionReason" rows="3" placeholder="Explain why this request is rejected..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModals()" [disabled]="actionLoading">Cancel</button>
+      <button type="button" class="btn btn-danger" (click)="confirmReject()" [disabled]="!rejectionReason.trim() || actionLoading">
+        <span *ngIf="actionLoading" class="spinner-border spinner-border-sm"></span> Confirm Reject
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Modal -->
+<div class="modal-backdrop" *ngIf="showAssignModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h5 class="modal-title">Assign Driver & Vehicle (Req #{{ selectedRequest?.id }})</h5>
+      <button type="button" class="btn-close" (click)="closeModals()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group mb-3">
+        <label>Select Driver *</label>
+        <select class="form-select" [(ngModel)]="selectedDriverId">
+          <option [ngValue]="null">-- Choose a Driver --</option>
+          <option *ngFor="let driver of drivers" [ngValue]="driver.id">{{ driver.name }} ({{ driver.phone }})</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Select Vehicle *</label>
+        <select class="form-select" [(ngModel)]="selectedVehicleId">
+          <option [ngValue]="null">-- Choose a Vehicle --</option>
+          <option *ngFor="let vehicle of vehicles" [ngValue]="vehicle.id">
+            {{ vehicle.registrationNumber }} - {{ vehicle.type }} (Cap: {{ vehicle.capacity }}t) - [{{ vehicle.status }}]
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModals()" [disabled]="actionLoading">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="confirmAssign()" [disabled]="!selectedDriverId || !selectedVehicleId || actionLoading">
+        <span *ngIf="actionLoading" class="spinner-border spinner-border-sm"></span> Assign
+      </button>
+    </div>
+  </div>
+</div>
