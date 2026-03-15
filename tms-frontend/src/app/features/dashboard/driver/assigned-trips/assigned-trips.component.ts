@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TransportRequestService } from '../../../../core/services/transport-request.service';
 import { TransportRequest, TransportRequestStatus } from '../../../../core/models/transport-request.model';
+import { TrackingService } from '../../../../core/services/tracking.service';
+import { OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-assigned-trips',
@@ -10,16 +12,27 @@ import { TransportRequest, TransportRequestStatus } from '../../../../core/model
   templateUrl: './assigned-trips.component.html',
   styleUrls: ['./assigned-trips.component.css']
 })
-export class AssignedTripsComponent implements OnInit {
+export class AssignedTripsComponent implements OnInit, OnDestroy {
   trips: TransportRequest[] = [];
   loading = true;
   error = '';
   updatingStatusId: number | null = null;
+  
+  private trackingInterval: any;
 
-  constructor(private transportRequestService: TransportRequestService) {}
+  constructor(
+    private transportRequestService: TransportRequestService,
+    private trackingService: TrackingService
+  ) {}
 
   ngOnInit(): void {
     this.loadTrips();
+    this.trackingService.connect();
+  }
+
+  ngOnDestroy(): void {
+    this.stopTracking();
+    this.trackingService.disconnect();
   }
 
   loadTrips() {
@@ -53,12 +66,40 @@ export class AssignedTripsComponent implements OnInit {
             this.trips[index] = updated;
           }
           this.updatingStatusId = null;
+          
+          if (updated.status === TransportRequestStatus.IN_PROGRESS) {
+            this.startTracking(updated.id);
+          } else if (updated.status === TransportRequestStatus.COMPLETED) {
+            this.stopTracking();
+          }
         },
         error: (err) => {
           alert('Failed to update trip status. Please try again.');
           this.updatingStatusId = null;
         }
       });
+    }
+  }
+
+  private startTracking(requestId: number) {
+    this.stopTracking(); // Clear existing
+    
+    // Initial position (Simulated: near a major city center)
+    let lat = 19.0760; 
+    let lng = 72.8777;
+
+    this.trackingInterval = setInterval(() => {
+      // Simulate movement: tiny random increments
+      lat += (Math.random() - 0.5) * 0.001;
+      lng += (Math.random() - 0.5) * 0.001;
+      
+      this.trackingService.sendLocation(requestId, lat, lng);
+    }, 5000); // Send every 5 seconds for smoother demo
+  }
+
+  private stopTracking() {
+    if (this.trackingInterval) {
+      clearInterval(this.trackingInterval);
     }
   }
 

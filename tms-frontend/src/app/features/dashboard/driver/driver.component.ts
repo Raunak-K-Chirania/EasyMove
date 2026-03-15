@@ -2,11 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationBellComponent } from '../../../shared/components/notification-bell/notification-bell.component';
 
 @Component({
     selector: 'app-driver-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterOutlet, RouterLink],
+    imports: [CommonModule, RouterOutlet, RouterLink, NotificationBellComponent],
     templateUrl: './driver.component.html'
 })
 export class DriverComponent implements OnInit {

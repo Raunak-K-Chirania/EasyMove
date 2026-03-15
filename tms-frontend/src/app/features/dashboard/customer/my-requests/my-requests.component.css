@@ -217,10 +217,68 @@
 }
 
 .card-footer {
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1.25rem;
   background-color: #f8fafc;
   border-top: 1px solid #f1f5f9;
-  text-align: right;
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.pay-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.pay-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* ── Cargo Summary ── */
+.cargo-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.cargo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #e2e8f0;
+  color: #475569;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cargo-meta {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fragile-badge {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: auto;
 }
 
 .btn-sm {
@@ -228,28 +286,114 @@
   font-size: 0.875rem;
 }
 
-.loading-state, .empty-state {
-  text-align: center;
-  padding: 3rem;
+.review-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);
+}
+
+.review-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* ── Review Modal ── */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.review-modal {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  width: 100%;
+  max-width: 450px;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: modalScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+@keyframes modalScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
 }
+
+.modal-header h3 { margin: 0; font-size: 1.25rem; color: #1e293b; }
+
+.close-btn {
+  background: none; border: none; font-size: 1.5rem;
+  color: #94a3b8; cursor: pointer; transition: color 0.2s;
+}
+.close-btn:hover { color: #475569; }
+
+.modal-body { padding: 1.5rem; }
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 2.5rem;
+  margin: 1.5rem 0;
+}
+
+.rating-stars span {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #cbd5e1;
+  transition: color 0.2s;
+}
+
+.rating-stars span.active {
+  color: #f59e0b;
+  transform: scale(1.1);
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+.tracking-container {
+  border-bottom: 2px solid #e2e8f0;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-footer {
+  padding: 1.25rem 1.5rem;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-outline-secondary:hover { background: #f1f5f9; }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }

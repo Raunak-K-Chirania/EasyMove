@@ -51,6 +51,15 @@
           </div>
         </div>
 
+        <div class="cargo-summary mt-3" *ngIf="request.cargoType">
+          <span class="cargo-badge">
+            <span class="ico">{{ request.cargoType === 'FURNITURE' ? '🪑' : request.cargoType === 'ELECTRONICS' ? '💻' : request.cargoType === 'DOCUMENTS' ? '📄' : request.cargoType === 'VEHICLES' ? '🏍️' : '📦' }}</span>
+            {{ request.cargoType | titlecase }}
+          </span>
+          <span class="cargo-meta">{{ request.numberOfItems }} items • {{ request.cargoWeightKg }} kg</span>
+          <span class="fragile-badge" *ngIf="request.isFragile">⚠️ Fragile</span>
+        </div>
+
         <div class="details-grid mt-3">
           <div class="detail-item" *ngIf="request.preferredTime">
             <i class="feather icon-clock"></i>
@@ -83,13 +92,64 @@
         </div>
       </div>
 
-      <div class="card-footer" *ngIf="canCancel(request)">
-        <button 
-          class="btn btn-outline-danger btn-sm" 
-          (click)="onCancel(request.id)"
-          [disabled]="cancelLoadingId === request.id">
-          <span *ngIf="cancelLoadingId !== request.id">Cancel Request</span>
-          <span *ngIf="cancelLoadingId === request.id">Cancelling...</span>
+      <div class="card-footer">
+        <div class="footer-actions">
+          <button 
+            *ngIf="request.status === 'COMPLETED' && !reviewedRequestIds.has(request.id)"
+            class="btn btn-primary btn-sm review-btn"
+            (click)="openReviewModal(request)">
+            ⭐ Rate Driver
+          </button>
+
+          <span *ngIf="request.status === 'COMPLETED' && reviewedRequestIds.has(request.id)" class="text-muted small">
+            ✅ Reviewed
+          </span>
+          
+          <button 
+            *ngIf="canCancel(request)"
+            class="btn btn-outline-danger btn-sm" 
+            (click)="onCancel(request.id)"
+            [disabled]="cancelLoadingId === request.id">
+            <span *ngIf="cancelLoadingId !== request.id">Cancel</span>
+            <span *ngIf="cancelLoadingId === request.id">...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Modal -->
+  <div class="modal-backdrop" *ngIf="showReviewModal">
+    <div class="review-modal">
+      <div class="modal-header">
+        <h3>Rate Your Driver</h3>
+        <button (click)="closeReviewModal()" class="close-btn">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <p>How was your experience with <strong>{{ selectedRequestForReview?.driverName }}</strong>?</p>
+        
+        <div class="rating-stars">
+          <span *ngFor="let s of [1,2,3,4,5]" 
+                (click)="reviewRating = s"
+                [class.active]="reviewRating >= s">★</span>
+        </div>
+
+        <div class="form-group mt-3">
+          <label>Your Feedback</label>
+          <textarea [(ngModel)]="reviewComment" 
+                    placeholder="Tell us what you liked or how we can improve..."
+                    rows="3"
+                    class="form-control"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" (click)="closeReviewModal()">Cancel</button>
+        <button class="btn btn-primary" 
+                [disabled]="isSubmittingReview"
+                (click)="submitReview()">
+          {{ isSubmittingReview ? 'Submitting...' : 'Submit Review' }}
         </button>
       </div>
     </div>

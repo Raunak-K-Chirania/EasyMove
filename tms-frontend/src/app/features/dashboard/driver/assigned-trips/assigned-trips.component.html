@@ -32,21 +32,27 @@
           </a>
         </div>
 
-        <div class="route-info mt-3">
-          <div class="location">
-            <span class="dot pickup"></span>
-            <div>
-              <small>Pickup</small>
-              <div class="loc-text">{{ trip.pickupLocation }}</div>
+        <div class="cargo-info mt-3" *ngIf="trip.cargoType">
+          <div class="cargo-grid">
+            <div class="cargo-item">
+              <small>Cargo</small>
+              <div>{{ trip.cargoType | titlecase }}</div>
+            </div>
+            <div class="cargo-item">
+              <small>Weight</small>
+              <div>{{ trip.cargoWeightKg }} kg</div>
+            </div>
+            <div class="cargo-item">
+              <small>Items</small>
+              <div>{{ trip.numberOfItems }}</div>
+            </div>
+            <div class="cargo-item" *ngIf="trip.isFragile">
+              <small>Note</small>
+              <div class="text-danger fw-bold">⚠️ Fragile</div>
             </div>
           </div>
-          <div class="route-line"></div>
-          <div class="location">
-            <span class="dot drop"></span>
-            <div>
-              <small>Drop-off</small>
-              <div class="loc-text">{{ trip.dropLocation }}</div>
-            </div>
+          <div class="cargo-desc mt-2 small text-muted" *ngIf="trip.cargoDescription">
+            "{{ trip.cargoDescription }}"
           </div>
         </div>
 

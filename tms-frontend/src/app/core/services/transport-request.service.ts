@@ -52,7 +52,7 @@ export class TransportRequestService {
     return this.http.put<TransportRequest>(`${this.apiUrl}/${id}/status`, {}, { params });
   }
 
-  cancelRequest(id: number): Observable<TransportRequest> {
-    return this.http.put<TransportRequest>(`${this.apiUrl}/${id}/cancel`, {});
+  cancelRequest(id: number, reason: string = ''): Observable<TransportRequest> {
+    return this.http.put<TransportRequest>(`${this.apiUrl}/${id}/cancel?reason=${encodeURIComponent(reason)}`, {});
   }
 }

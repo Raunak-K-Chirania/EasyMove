@@ -41,6 +41,10 @@
           </td>
           <td>
             <div *ngIf="req.preferredTime">🕒 {{ req.preferredTime | date:'short' }}</div>
+            <div class="cargo-pill mt-1" *ngIf="req.cargoType">
+              📦 {{ req.cargoType }} • {{ req.numberOfItems }} pcs • {{ req.cargoWeightKg }}kg
+              <span class="text-danger ms-1" *ngIf="req.isFragile">⚠️ Fragile</span>
+            </div>
             <div class="text-muted small mt-1" *ngIf="req.specialInstructions">
               <em>"{{ req.specialInstructions }}"</em>
             </div>
@@ -50,8 +54,12 @@
           </td>
           <td>
             <div *ngIf="req.driverName" class="assignment-info">
-              <div>🧑‍✈️ {{ req.driverName }}</div>
-              <div>🚛 {{ req.vehicleRegistrationNumber }}</div>
+              <div class="fw-bold">🧑‍✈️ {{ req.driverName }}</div>
+              <div class="rating-badge" *ngIf="getDriverRating(req.driverId || 0)">
+                <span class="stars">⭐ {{ getDriverRating(req.driverId || 0)?.average | number:'1.1-1' }}</span>
+                <span class="count">({{ getDriverRating(req.driverId || 0)?.count }})</span>
+              </div>
+              <div class="text-muted small">🚛 {{ req.vehicleRegistrationNumber }}</div>
             </div>
             <span *ngIf="!req.driverName" class="text-muted">-</span>
           </td>

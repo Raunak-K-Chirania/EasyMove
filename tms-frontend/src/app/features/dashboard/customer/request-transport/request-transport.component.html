@@ -27,7 +27,7 @@
         <span *ngIf="currentStep <= 1">1</span>
         <span *ngIf="currentStep > 1">✓</span>
       </div>
-      <span class="rt-step-label">Select Route</span>
+      <span class="rt-step-label">Route</span>
     </div>
     <div class="rt-step-line" [class.rt-step-line--done]="currentStep > 1"></div>
     <div class="rt-step" [class.rt-step--done]="currentStep > 2" [class.rt-step--active]="currentStep === 2" (click)="goToStep(2)">
@@ -35,11 +35,19 @@
         <span *ngIf="currentStep <= 2">2</span>
         <span *ngIf="currentStep > 2">✓</span>
       </div>
-      <span class="rt-step-label">Address Details</span>
+      <span class="rt-step-label">Address</span>
     </div>
     <div class="rt-step-line" [class.rt-step-line--done]="currentStep > 2"></div>
-    <div class="rt-step" [class.rt-step--active]="currentStep === 3">
-      <div class="rt-step-circle">3</div>
+    <div class="rt-step" [class.rt-step--done]="currentStep > 3" [class.rt-step--active]="currentStep === 3" (click)="goToStep(3)">
+      <div class="rt-step-circle">
+        <span *ngIf="currentStep <= 3">3</span>
+        <span *ngIf="currentStep > 3">✓</span>
+      </div>
+      <span class="rt-step-label">Cargo</span>
+    </div>
+    <div class="rt-step-line" [class.rt-step-line--done]="currentStep > 3"></div>
+    <div class="rt-step" [class.rt-step--active]="currentStep === 4">
+      <div class="rt-step-circle">4</div>
       <span class="rt-step-label">Schedule</span>
     </div>
   </div>
@@ -252,16 +260,98 @@
         <div class="rt-actions rt-actions--split">
           <button type="button" class="rt-btn rt-btn--ghost" (click)="prevStep()">← Back</button>
           <button type="button" class="rt-btn rt-btn--primary" (click)="nextStep()">
+            Next — Cargo Details <span class="rt-btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── STEP 3: Cargo Details ── -->
+      <div class="rt-step-panel" *ngIf="currentStep === 3">
+        <div class="rt-step-header">
+          <h2>📦 Cargo Details</h2>
+          <p>What are we moving? Tell us about your items.</p>
+        </div>
+
+        <div formGroupName="cargo" class="rt-cargo-form">
+          <div class="rt-field">
+            <label class="rt-label">Cargo Type *</label>
+            <div class="rt-cargo-grid">
+              <label class="rt-cargo-option" [class.rt-cargo-option--selected]="requestForm.get('cargo.cargoType')?.value === 'FURNITURE'">
+                <input type="radio" formControlName="cargoType" value="FURNITURE" class="rt-radio-hidden">
+                <span class="rt-cargo-icon">🪑</span>
+                <span class="rt-cargo-name">Furniture</span>
+              </label>
+              <label class="rt-cargo-option" [class.rt-cargo-option--selected]="requestForm.get('cargo.cargoType')?.value === 'ELECTRONICS'">
+                <input type="radio" formControlName="cargoType" value="ELECTRONICS" class="rt-radio-hidden">
+                <span class="rt-cargo-icon">💻</span>
+                <span class="rt-cargo-name">Electronics</span>
+              </label>
+              <label class="rt-cargo-option" [class.rt-cargo-option--selected]="requestForm.get('cargo.cargoType')?.value === 'DOCUMENTS'">
+                <input type="radio" formControlName="cargoType" value="DOCUMENTS" class="rt-radio-hidden">
+                <span class="rt-cargo-icon">📄</span>
+                <span class="rt-cargo-name">Documents</span>
+              </label>
+              <label class="rt-cargo-option" [class.rt-cargo-option--selected]="requestForm.get('cargo.cargoType')?.value === 'VEHICLES'">
+                <input type="radio" formControlName="cargoType" value="VEHICLES" class="rt-radio-hidden">
+                <span class="rt-cargo-icon">🏍️</span>
+                <span class="rt-cargo-name">Vehicles</span>
+              </label>
+              <label class="rt-cargo-option" [class.rt-cargo-option--selected]="requestForm.get('cargo.cargoType')?.value === 'OTHER'">
+                <input type="radio" formControlName="cargoType" value="OTHER" class="rt-radio-hidden">
+                <span class="rt-cargo-icon">📦</span>
+                <span class="rt-cargo-name">Other</span>
+              </label>
+            </div>
+            <span class="rt-error" *ngIf="requestForm.get('cargo.cargoType')?.invalid && requestForm.get('cargo.cargoType')?.touched">
+              Please select a cargo type
+            </span>
+          </div>
+
+          <div class="rt-field-row">
+            <div class="rt-field">
+              <label class="rt-label" for="cargoWeight">Est. Total Weight (kg) *</label>
+              <input id="cargoWeight" type="number" class="rt-input" formControlName="cargoWeightKg" placeholder="e.g. 50">
+              <span class="rt-error" *ngIf="requestForm.get('cargo.cargoWeightKg')?.invalid && requestForm.get('cargo.cargoWeightKg')?.touched">
+                Required (min 0.1)
+              </span>
+            </div>
+            <div class="rt-field">
+              <label class="rt-label" for="numberOfItems">Number of Items *</label>
+              <input id="numberOfItems" type="number" class="rt-input" formControlName="numberOfItems" placeholder="e.g. 5">
+              <span class="rt-error" *ngIf="requestForm.get('cargo.numberOfItems')?.invalid && requestForm.get('cargo.numberOfItems')?.touched">
+                Required (min 1)
+              </span>
+            </div>
+          </div>
+
+          <div class="rt-field">
+            <label class="rt-label" for="cargoDescription">Description / Item List</label>
+            <textarea id="cargoDescription" class="rt-input rt-textarea--sm" formControlName="cargoDescription" rows="3"
+                      placeholder="e.g. 1 Bed, 2 Sofas, 5 Small boxes..."></textarea>
+          </div>
+
+          <div class="rt-field">
+            <label class="rt-checkbox-group">
+              <input type="checkbox" formControlName="isFragile">
+              <span class="rt-checkbox-custom"></span>
+              <span class="rt-checkbox-text">This shipment contains fragile items ⚠️</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="rt-actions rt-actions--split">
+          <button type="button" class="rt-btn rt-btn--ghost" (click)="prevStep()">← Back</button>
+          <button type="button" class="rt-btn rt-btn--primary" (click)="nextStep()" [disabled]="!stepThreeValid">
             Next — Schedule <span class="rt-btn-arrow">→</span>
           </button>
         </div>
       </div>
 
-      <!-- ── STEP 3: Schedule & Notes ── -->
-      <div class="rt-step-panel" *ngIf="currentStep === 3">
+      <!-- ── STEP 4: Schedule & Notes ── -->
+      <div class="rt-step-panel" *ngIf="currentStep === 4">
         <div class="rt-step-header">
-          <h2>🗓 Schedule & Notes</h2>
-          <p>Set a preferred pickup time and any special instructions.</p>
+          <h2>🗓 Schedule & Final Review</h2>
+          <p>Set a preferred pickup time and review your booking.</p>
         </div>
 
         <div class="rt-field">
@@ -276,9 +366,9 @@
           <label class="rt-label" for="specialInstructions">
             Special Instructions <span class="rt-optional">(Optional)</span>
           </label>
-          <textarea id="specialInstructions" class="rt-input rt-textarea"
-            formControlName="specialInstructions" rows="4"
-            placeholder="e.g. Fragile items, heavy furniture, elevator available, parking info…">
+          <textarea id="specialInstructions" class="rt-input rt-textarea--sm"
+            formControlName="specialInstructions" rows="3"
+            placeholder="e.g. Elevator available, parking info…">
           </textarea>
         </div>
 
@@ -289,6 +379,14 @@
             <div class="rt-summary-item">
               <span class="rt-summary-label">Route</span>
               <span class="rt-summary-value">{{ selectedRoute.source }} → {{ selectedRoute.destination }}</span>
+            </div>
+            <div class="rt-summary-item">
+              <span class="rt-summary-label">Cargo</span>
+              <span class="rt-summary-value">
+                {{ requestForm.get('cargo.cargoType')?.value | titlecase }} 
+                ({{ requestForm.get('cargo.numberOfItems')?.value }} items, 
+                {{ requestForm.get('cargo.cargoWeightKg')?.value }} kg)
+              </span>
             </div>
             <div class="rt-summary-item">
               <span class="rt-summary-label">Distance</span>

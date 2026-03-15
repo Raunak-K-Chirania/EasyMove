@@ -22,5 +22,5 @@ Thumbs.db
 # Firebase secret key (IMPORTANT)
 src/main/resources/firebase-service-account.json
 
-
+## Google cloud console api key
 tms-frontend/src/environments/environment.ts

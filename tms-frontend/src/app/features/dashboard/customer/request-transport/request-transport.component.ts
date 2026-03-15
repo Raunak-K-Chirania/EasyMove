@@ -16,7 +16,7 @@ import { Router } from '@angular/router';
 export class RequestTransportComponent implements OnInit {
 
   currentStep = 1;
-  totalSteps = 3;
+  totalSteps = 4;
 
   requestForm: FormGroup;
   isSubmitting = false;
@@ -55,6 +55,14 @@ export class RequestTransportComponent implements OnInit {
         ward:     [''],
         pincode:  ['', [Validators.required, Validators.pattern('^[0-9]{6}$')]],
         landmark: ['']
+      }),
+
+      cargo: this.fb.group({
+        cargoType:         ['', Validators.required],
+        cargoWeightKg:     [null, [Validators.required, Validators.min(0.1)]],
+        cargoDescription:  [''],
+        isFragile:         [false],
+        numberOfItems:     [1, [Validators.required, Validators.min(1)]]
       }),
 
       preferredTime:       [''],
@@ -96,11 +104,19 @@ export class RequestTransportComponent implements OnInit {
            this.requestForm.get('dropAddress')!.valid;
   }
 
+  get stepThreeValid(): boolean {
+    return this.requestForm.get('cargo')!.valid;
+  }
+
   nextStep() {
     if (this.currentStep === 1 && !this.stepOneValid) return;
     if (this.currentStep === 2 && !this.stepTwoValid) {
       this.requestForm.get('pickupAddress')!.markAllAsTouched();
       this.requestForm.get('dropAddress')!.markAllAsTouched();
+      return;
+    }
+    if (this.currentStep === 3 && !this.stepThreeValid) {
+      this.requestForm.get('cargo')!.markAllAsTouched();
       return;
     }
     if (this.currentStep < this.totalSteps) this.currentStep++;
@@ -136,6 +152,7 @@ export class RequestTransportComponent implements OnInit {
 
     const pickupAddress = this.requestForm.get('pickupAddress') as FormGroup;
     const dropAddress   = this.requestForm.get('dropAddress')   as FormGroup;
+    const cargo         = this.requestForm.get('cargo')         as FormGroup;
 
     let preferredTime = this.requestForm.get('preferredTime')?.value || null;
     if (preferredTime && preferredTime.length === 16) {
@@ -151,7 +168,8 @@ export class RequestTransportComponent implements OnInit {
       specialInstructions: this.requestForm.get('specialInstructions')?.value || null,
       distanceKm:          this.distanceKm,
       price:               this.estimatedPrice,
-      routeId:             routeIdVal ? +routeIdVal : null
+      routeId:             routeIdVal ? +routeIdVal : null,
+      ...cargo.value
     };
 
     this.transportRequestService.createRequest(requestData).subscribe({

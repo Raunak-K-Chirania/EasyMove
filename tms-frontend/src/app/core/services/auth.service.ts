@@ -13,7 +13,7 @@ export class AuthService {
   private fireAuth = inject(Auth);
   private apiUrl = '/api/auth';
 
-  private currentUserSubject = new BehaviorSubject<{ token: string, role: string } | null>(null);
+  private currentUserSubject = new BehaviorSubject<{ id?: number, token: string, role: string, email?: string, name?: string } | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {

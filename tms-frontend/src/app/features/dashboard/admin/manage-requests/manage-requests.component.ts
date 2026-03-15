@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TransportRequestService } from '../../../../core/services/transport-request.service';
 import { UserService } from '../../../../core/services/user.service';
 import { VehicleService } from '../../../../core/services/vehicle.service';
+import { ReviewService } from '../../../../core/services/review.service';
 import { TransportRequest, TransportRequestStatus } from '../../../../core/models/transport-request.model';
 import { User } from '../../../../core/models/user.model';
 import { Vehicle } from '../../../../core/models/vehicle.model';
@@ -33,11 +34,14 @@ export class ManageRequestsComponent implements OnInit {
   selectedDriverId: number | null = null;
   selectedVehicleId: number | null = null;
   actionLoading = false;
+  
+  driverRatings: Map<number, { average: number, count: number }> = new Map();
 
   constructor(
     private transportRequestService: TransportRequestService,
     private userService: UserService,
-    private vehicleService: VehicleService
+    private vehicleService: VehicleService,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit(): void {
@@ -61,8 +65,28 @@ export class ManageRequestsComponent implements OnInit {
   }
 
   loadDriversAndVehicles() {
-    this.userService.getDrivers().subscribe(data => this.drivers = data);
+    this.userService.getDrivers().subscribe(data => {
+      this.drivers = data;
+      this.fetchDriverRatings();
+    });
     this.vehicleService.getAllVehicles().subscribe(data => this.vehicles = data);
+  }
+
+  fetchDriverRatings() {
+    this.drivers.forEach(driver => {
+      if (driver.id) {
+        this.reviewService.getAverageRatingDetails(driver.id).subscribe(res => {
+          this.driverRatings.set(driver.id!, {
+            average: res.averageRating,
+            count: res.reviewCount
+          });
+        });
+      }
+    });
+  }
+
+  getDriverRating(driverId: number) {
+    return this.driverRatings.get(driverId);
   }
 
   approveRequest(id: number) {

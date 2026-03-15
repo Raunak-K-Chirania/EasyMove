@@ -30,4 +30,15 @@ export interface TransportRequest {
   vehicleRegistrationNumber?: string;
   createdAt: string;
   updatedAt: string;
+
+  // Cargo details
+  cargoType?: string;
+  cargoWeightKg?: number;
+  cargoDescription?: string;
+  isFragile?: boolean;
+  numberOfItems?: number;
+
+  // Cancellation
+  cancellationReason?: string;
+  cancellationTime?: string;
 }
